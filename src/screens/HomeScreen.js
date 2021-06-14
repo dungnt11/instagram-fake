@@ -5,19 +5,21 @@ import {
   TouchableOpacity,
   Image,
   FlatList,
-  Dimensions, StyleSheet,
+  Dimensions,
+  StyleSheet,
 } from "react-native";
 import {
   FontAwesome,
   MaterialCommunityIcons,
   SimpleLineIcons
 } from "@expo/vector-icons";
+import Constants from 'expo-constants';
+
+import { axios } from '../config/axios';
 
 import { Loader } from "../components/Loader";
 
 const { width, height } = Dimensions.get("window");
-
-const accessToken = "YOUR_ACCESS_TOKEN";
 
 class HomeScreen extends React.Component {
   static navigationOptions = ({ navigation }) => ({
@@ -56,9 +58,9 @@ class HomeScreen extends React.Component {
   }
 
   createPost = (postInfo, index) => {
-    const imageUri = postInfo.images.standard_resolution.url;
-    const username = postInfo.user.username.toString();
-    const numlikes = postInfo.likes.count;
+    const imageUri = postInfo.url;
+    const username = postInfo.username.toString();
+    const numlikes = postInfo.likes;
 
     return (
       <View>
@@ -97,7 +99,7 @@ class HomeScreen extends React.Component {
   };
 
   makeCommentsList = async posts => {
-    let postsArray = posts.map(async post => {
+    let postsArray = posts.map(async (post) => {
       const postId = post.id;
       if (post.comments.count === 0) {
         return (
@@ -106,31 +108,27 @@ class HomeScreen extends React.Component {
           </View>
         );
       }
-      const response = await fetch(
-        `https://api.instagram.com/v1/media/${postId}/comments?access_token=${accessToken}`
-      );
-      const comments = await response.json();
-      const commentsArray = comments.data;
-
-      const commentsList = commentsArray.map(commentInfo => (
-        <View style={styles.comment} key={commentInfo.id}>
-          <Text style={styles.commentText}>{commentInfo.from.username}</Text>
-          <Text>{commentInfo.text}</Text>
-        </View>
-      ));
-      return commentsList;
+      try {
+        const comments = await axios.get(`/api/comments/${postId}`);
+        const commentsArray = comments.data;
+  
+        const commentsList = commentsArray.map(commentInfo => (
+          <View style={styles.comment} key={commentInfo.id}>
+            <Text style={styles.commentText}>{commentInfo.from.username}</Text>
+            <Text>{commentInfo.text}</Text>
+          </View>
+        ));
+        return commentsList;
+      } catch (error) {
+        console.log(error);
+      }
     });
     postsArray = await Promise.all(postsArray);
     return postsArray;
   };
 
   async fetchFeed() {
-    const response = await fetch(
-      `https://api.instagram.com/v1/users/self/media/recent/?access_token=${accessToken}`
-    );
-
-    const posts = await response.json();
-    console.log(posts.data, "data");
+    const posts = await axios.get('/api/feeds');
 
     const comments = await this.makeCommentsList(posts.data);
 
@@ -146,6 +144,7 @@ class HomeScreen extends React.Component {
       <View style={styles.container}>
         <Loader loading={this.state.loaded} text="Loading..." />
         <FlatList
+          style={styles.listFeeds}
           data={this.state.data}
           renderItem={({ item, index }) => this.createPost(item, index)}
           keyExtractor={item => item.id}
@@ -159,7 +158,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    justifyContent: "center"
+    justifyContent: "center",
+  },
+  listFeeds: {
+    marginTop: Constants.statusBarHeight,
   },
   headerText: {
     textAlign: "center",

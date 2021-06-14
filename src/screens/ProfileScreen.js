@@ -6,10 +6,11 @@ import {
   Image,
   Dimensions, StyleSheet,
 } from "react-native";
+import Constants from 'expo-constants';
+import { axios } from '../config/axios';
 import { Loader } from "../components/Loader";
 
 const { width, height } = Dimensions.get("window");
-const accessToken = "YOUR_ACCESS_TOKEN";
 
 export default class ProfileScreen extends React.Component {
   static navigationOptions = ({ navigation }) => ({
@@ -35,16 +36,11 @@ export default class ProfileScreen extends React.Component {
   }
 
   async fetchFeed() {
-    const response = await fetch(
-      `https://api.instagram.com/v1/users/self/media/recent/?access_token=${accessToken}`
-    );
-
-    const posts = await response.json();
-    console.log(posts.data, "data");
-    const img = posts.data[0].user.profile_picture;
+    const posts = await axios.get('/api/users/self');
+    const img = posts.data.profile_picture;
     await this.setState({
       loaded: false,
-      data: posts.data,
+      data: posts.data.data,
       profileImg: img
     });
     this.renderHeader();
@@ -54,9 +50,8 @@ export default class ProfileScreen extends React.Component {
     const imageUrl = this.state.profileImg;
     console.log(imageUrl, "img");
     return (
-      <View style={{ padding: 20, flexDirection: "row" }}>
+      <View style={{ padding: 20, flexDirection: "row", marginTop: Constants.statusBarHeight }}>
         <View style={styles.profileImage} />
-
         <View
           style={{
             flex: 1,
@@ -95,7 +90,7 @@ export default class ProfileScreen extends React.Component {
   };
 
   renderItem = (postInfo, index) => {
-    const imageUri = postInfo.images.standard_resolution.url;
+    const imageUri = postInfo.url;
 
     return (
       <View style={styles.gridImgContainer}>
@@ -127,9 +122,8 @@ export default class ProfileScreen extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff"
+    backgroundColor: "#fff",
   },
-
   gridImgContainer: {
     padding: 1,
     backgroundColor: "#CCC"

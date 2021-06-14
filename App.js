@@ -4,7 +4,7 @@ import { useFonts } from 'expo-font';
 import { NavigationContainer } from '@react-navigation/native';
 import Routes from './src/Routes';
 
-export default (props) => {
+export default () => {
   let [fontsLoaded] = useFonts({
     "lobster_regular": require("./assets/fonts/Lobster/Lobster-Regular.ttf"),
     "Roboto": require("./assets/fonts/Roboto/Roboto-Regular.ttf")

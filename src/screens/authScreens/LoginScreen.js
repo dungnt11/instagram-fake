@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
+import { axios } from '../../config/axios';
 
 import { StyleSheet, Dimensions } from "react-native";
 
@@ -29,41 +30,32 @@ class LoginScreen extends React.Component {
       loading: false,
       username: '',
       password: '',
+      error: '',
     };
   }
 
   componentDidMount() {}
 
   instaLogin = async () => {
+    const { username, password } = this.state;
     try {
       this.setState({ loading: true });
-      const client = new Instagram({ username, password });
-
-      const response = await fetch(
-        `https://api.instagram.com/oauth/authorize/?client_id=${clientId}&redirect_uri=${redirecUrl}&response_type=token&scope=public_content`,
-        {
-          method: "POST",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json"
-          },
-          body:JSON.stringify({
-          })
-        }
-      );
-  
-      const data = await response.json();
-      console.log(data);
-    } catch (error) {
-      
-    } finally {
+      await axios.post('/api/login', { username, password });
       this.props.navigation.navigate("AppStack");
+    } catch (error) {
+      this.setState({ error });
+    } finally {
       this.setState({ loading: false });
     }
   };
 
   render() {
-    const { loading, username, password } = this.state;
+    const {
+      loading,
+      username,
+      password,
+      error,
+    } = this.state;
     return (
       <View style={styles.mainContainer}>
         <TouchableOpacity
@@ -79,7 +71,9 @@ class LoginScreen extends React.Component {
             <PlainInput
               placeholder="Phone number, email address or username"
               value={username}
-              onChangeText={(newUsername) => this.setState({ username: newUsername })}
+              onChangeText={(newUsername) => {
+                this.setState({ username: newUsername, error: '' });
+              }}
             />
           </View>
 
@@ -88,9 +82,12 @@ class LoginScreen extends React.Component {
               placeholder="Password"
               secureTextEntry
               value={password}
-              onChangeText={(newPassword) => this.setState({ password: newPassword })}
+              onChangeText={(newPassword) => {
+                this.setState({ password: newPassword, error: '' });
+              }}
             />
           </View>
+          { error ? <Text style={styles.error}>Wrong username or password!</Text> : null }
 
           <View style={styles.inputWrapper}>
             { loading ? <ActivityIndicator /> : (
@@ -186,6 +183,10 @@ const styles = StyleSheet.create({
     borderColor: "gray",
     alignItems: "center",
     paddingVertical: 18
+  },
+  error: {
+    color: '#d95038',
+    marginTop: 5
   }
 });
 
