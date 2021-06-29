@@ -1,27 +1,21 @@
 import React from "react";
-import { StyleSheet } from 'react-native';
-import { Text, View, TouchableOpacity, Camera, Permissions } from "react-native";
+import {
+  Text,
+  View,
+  TouchableOpacity,
+  StyleSheet,
+} from "react-native";
+import { Camera } from 'expo-camera';
+import Constants from 'expo-constants';
 
 export default class CameraScreen extends React.Component {
-  static navigationOptions = ({ navigation }) => ({
-    title: "Instagram",
-    headerTitleStyle: {
-      textAlign: "center",
-      flex: 1,
-      fontFamily: "lobster_regular",
-      fontSize: 22
-    },
-    headerRight: <View />,
-    headerLeft: <View />
-  });
-
   state = {
     hasCameraPermission: null,
     type: Camera.Constants.Type.back
   };
 
-  async componentWillMount() {
-    const { status } = await Permissions.askAsync(Permissions.CAMERA);
+  async componentDidMount() {
+    const { status } = await Camera.requestPermissionsAsync();
     this.setState({ hasCameraPermission: status === "granted" });
   }
   
@@ -33,7 +27,7 @@ export default class CameraScreen extends React.Component {
       return <Text>No access to camera</Text>;
     } else {
       return (
-        <View style={{ flex: 1 }}>
+        <View style={style.container}>
           <Camera style={{ flex: 1 }} type={this.state.type}>
             <View
               style={{
@@ -67,11 +61,9 @@ export default class CameraScreen extends React.Component {
   }
 }
 
-const styles = StyleSheet.create({
+const style = StyleSheet.create({
   container: {
+    marginTop: Constants.statusBarHeight,
     flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center"
   }
 });

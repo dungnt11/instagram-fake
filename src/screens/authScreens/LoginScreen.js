@@ -34,8 +34,6 @@ class LoginScreen extends React.Component {
     };
   }
 
-  componentDidMount() {}
-
   instaLogin = async () => {
     const { username, password } = this.state;
     try {

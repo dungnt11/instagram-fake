@@ -51,7 +51,10 @@ export default class ProfileScreen extends React.Component {
     console.log(imageUrl, "img");
     return (
       <View style={{ padding: 20, flexDirection: "row", marginTop: Constants.statusBarHeight }}>
-        <View style={styles.profileImage} />
+        <Image
+          source={{ uri: imageUrl }}
+          style={styles.profileImage}
+        />
         <View
           style={{
             flex: 1,
@@ -62,7 +65,7 @@ export default class ProfileScreen extends React.Component {
         >
           <View style={{ flexDirection: "row", flex: 1 }}>
             <View style={{ flex: 1, alignItems: "center" }}>
-              <Text>39</Text>
+              <Text>40</Text>
               <Text>Posts</Text>
             </View>
             <View style={{ flex: 1, alignItems: "center" }}>
@@ -133,7 +136,7 @@ const styles = StyleSheet.create({
     height: width * 0.2,
     borderRadius: width * 0.5,
     borderWidth: 1,
-    marginRight: 10
+    marginRight: 10,
   },
   image: {
     height: width * 0.33,
