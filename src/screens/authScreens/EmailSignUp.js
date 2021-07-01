@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   Alert,
 } from "react-native";
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
 import { store } from '../../store/user';
 import { PlainInput } from "../../components/InputField";
@@ -60,55 +61,60 @@ class EmailSignUp extends React.Component {
     } = this.state;
 
     return (
-      <View style={styles.container}>
-        <PlainInput
-          placeholder="Enter your Email id"
-          value={email}
-          onChangeText={(val) => this.setState({ email: val })}
-          styles={styles.marginBottom}
-        />
-        <PlainInput
-          placeholder="Password"
-          value={password}
-          onChangeText={(val) => this.setState({ password: val })}
-          styles={styles.marginBottom}
-        />
-        <PlainInput
-          placeholder="Re-Password"
-          value={rePassword}
-          onChangeText={(val) => this.setState({ rePassword: val })}
-          styles={styles.marginBottom}
-        />
-        <PlainInput
-          placeholder="Display name"
-          value={displayName}
-          onChangeText={(val) => this.setState({ displayName: val })}
-          styles={styles.marginBottom}
-        />
-        <TouchableOpacity
-          style={[styles.inputWrapper, styles.btnContainer]}
-          onPress={async () => {
-            if (!email || !password || !rePassword || !displayName) {
-              Alert.alert('Field is required !');
-              return;
-            }
+      <KeyboardAwareScrollView>
 
-            if (password !== rePassword) {
-              Alert.alert('RePassword not match password');
-              return;
-            }
+        <View style={styles.container}>
+          <PlainInput
+            placeholder="Enter your Email id"
+            value={email}
+            onChangeText={(val) => this.setState({ email: val })}
+            styles={styles.marginBottom}
+          />
+          <PlainInput
+            secureTextEntry
+            placeholder="Password"
+            value={password}
+            onChangeText={(val) => this.setState({ password: val })}
+            styles={styles.marginBottom}
+          />
+          <PlainInput
+            secureTextEntry
+            placeholder="Re-Password"
+            value={rePassword}
+            onChangeText={(val) => this.setState({ rePassword: val })}
+            styles={styles.marginBottom}
+          />
+          <PlainInput
+            placeholder="Display name"
+            value={displayName}
+            onChangeText={(val) => this.setState({ displayName: val })}
+            styles={styles.marginBottom}
+          />
+          <TouchableOpacity
+            style={[styles.inputWrapper, styles.btnContainer]}
+            onPress={async () => {
+              if (!email || !password || !rePassword || !displayName) {
+                Alert.alert('Field is required !');
+                return;
+              }
 
-            const userRegisted = await this.signUpFn();
-            store.setUser(userRegisted);
-            Alert.alert('Register success!!', 'Please login now!');
-            this.props.navigation.navigate("LoginScreen");
-          }}
-        >
-          { loading ? <ActivityIndicator /> : (
-            <Text style={{ color: "#fff" }}>Sign Up</Text>
-          ) }
-        </TouchableOpacity>
-      </View>
+              if (password !== rePassword) {
+                Alert.alert('RePassword not match password');
+                return;
+              }
+
+              const userRegisted = await this.signUpFn();
+              store.setUser(userRegisted);
+              Alert.alert('Register success!!', 'Please login now!');
+              this.props.navigation.navigate("LoginScreen");
+            }}
+          >
+            { loading ? <ActivityIndicator /> : (
+              <Text style={{ color: "#fff" }}>Sign Up</Text>
+            ) }
+          </TouchableOpacity>
+        </View>
+      </KeyboardAwareScrollView>
     );
   }
 }

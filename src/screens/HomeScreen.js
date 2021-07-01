@@ -54,24 +54,27 @@ class HomeScreen extends React.Component {
   };
 
   componentDidMount() {
-   this.fetchFeed();
+    const { userID } = this.props.route.params;
+    this.fetchFeed(userID);
   }
 
   createPost = (postInfo, index) => {
     const imageUri = postInfo.url;
+    const status = postInfo.status;
     const username = postInfo.username.toString();
+    const avatar = postInfo.avatar;
     const numlikes = postInfo.likes;
 
     return (
       <View>
         <View style={styles.infoContainer}>
           <View style={{ flexDirection: "row", alignItems: "center", flex: 1 }}>
-            <View style={styles.profileImage} />
+            <Image style={styles.profileImage} source={{ uri: avatar }} />
             <Text style={styles.infoText}>{username}</Text>
           </View>
           <MaterialCommunityIcons name="dots-vertical" size={26} color="gray" />
         </View>
-
+        <Text style={{ marginLeft: 5, marginBottom: 10 }}>{status}</Text>
         <Image style={styles.image} source={{ uri: imageUri }} />
         <View
           style={{
@@ -127,8 +130,8 @@ class HomeScreen extends React.Component {
     return postsArray;
   };
 
-  async fetchFeed() {
-    const posts = await axios.get('/api/feeds');
+  async fetchFeed(userID) {
+    const posts = await axios.get(`/api/feeds/${userID}`);
 
     const comments = await this.makeCommentsList(posts.data);
 

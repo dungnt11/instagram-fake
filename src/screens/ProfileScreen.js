@@ -9,6 +9,7 @@ import {
 import Constants from 'expo-constants';
 import { axios } from '../config/axios';
 import { Loader } from "../components/Loader";
+import { store } from '../store/user';
 
 const { width, height } = Dimensions.get("window");
 
@@ -47,23 +48,24 @@ export default class ProfileScreen extends React.Component {
   }
 
   renderHeader = () => {
-    const imageUrl = this.state.profileImg;
-    console.log(imageUrl, "img");
+    const user = store.userInfo;
     return (
       <View style={{ padding: 20, flexDirection: "row", marginTop: Constants.statusBarHeight }}>
         <Image
-          source={{ uri: imageUrl }}
+          source={{ uri: user.avatar }}
           style={styles.profileImage}
         />
-        <View
-          style={{
-            flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
-            padding: 5
-          }}
-        >
-          <View style={{ flexDirection: "row", flex: 1 }}>
+        <View>
+          <Text>{user.displayName}</Text>
+          <View
+            style={{
+              flex: 1,
+              padding: 5,
+              width: width * 0.7,
+              justifyContent: 'space-between',
+              flexDirection: 'row'
+            }}
+          >
             <View style={{ flex: 1, alignItems: "center" }}>
               <Text>40</Text>
               <Text>Posts</Text>
@@ -78,15 +80,15 @@ export default class ProfileScreen extends React.Component {
             </View>
           </View>
           <View
-            style={{
-              borderWidth: 1,
-              width: "100%",
-              marginLeft: 1,
-              alignItems: "center"
-            }}
-          >
-            <Text>Edit Profile</Text>
-          </View>
+              style={{
+                borderWidth: 1,
+                width: "100%",
+                marginLeft: 1,
+                alignItems: "center"
+              }}
+            >
+              <Text>Edit Profile</Text>
+            </View>
         </View>
       </View>
     );

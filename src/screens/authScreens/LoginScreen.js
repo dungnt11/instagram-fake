@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { axios } from '../../config/axios';
+import { store } from '../../store/user';
 
 import { StyleSheet, Dimensions } from "react-native";
 
@@ -39,7 +40,6 @@ class LoginScreen extends React.Component {
     try {
       this.setState({ loading: true });
       const res = await axios.post('/api/login', { email, password });
-      this.props.navigation.navigate("AppStack");
       return res.data;
     } catch (error) {
       this.setState({ error });
@@ -92,7 +92,8 @@ class LoginScreen extends React.Component {
             { loading ? <ActivityIndicator /> : (
               <Button title="Log in" onPress={async () => {
                 const userData = await this.instaLogin();
-                console.log(userData);
+                store.setUser(userData);
+                this.props.navigation.navigate("AppStack", { userID: userData._id });
               }} />
             ) }
           </View>

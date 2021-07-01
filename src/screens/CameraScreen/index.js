@@ -2,11 +2,11 @@ import * as React from 'react';
 import ImagePicker from './ImagePicker';
 import Camera from './Camera';
 
-const CameraScreen = () => {
+const CameraScreen = (props) => {
   return (
     <>
       <Camera />
-      <ImagePicker />
+      <ImagePicker {...props} />
     </>
   )
 }

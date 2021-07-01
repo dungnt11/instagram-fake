@@ -43,7 +43,8 @@ function AuthStack () {
   );
 }
 
-function AppStack() {
+function AppStack(props) {
+  const HomeComp = () => <HomeScreen {...props} />;
   return (
     <Tab.Navigator
       tabBarOptions={{
@@ -53,7 +54,7 @@ function AppStack() {
     >
       <Tab.Screen
         name="HomeScreen"
-        component={HomeScreen}
+        component={HomeComp}
         options={{
           tabBarIcon: ({ focused }) => (
             <Foundation

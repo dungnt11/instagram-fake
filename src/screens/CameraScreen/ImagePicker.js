@@ -7,13 +7,15 @@ import {
   TextInput,
   StyleSheet,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
 import * as ImagePicker from 'expo-image-picker';
 import { axios } from '../../config/axios';
+import { store } from '../../store/user';
 
-export default function ImagePickerExample() {
+export default function ImagePickerExample(props) {
   const [image, setImage] = useState(null);
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(false);
@@ -45,13 +47,12 @@ export default function ImagePickerExample() {
   async function postFn() {
     setLoading(true);
     const data = new FormData();
-    console.log(image);
+    data.append('_id', store.userInfo._id);
     data.append('width', image.width);
     data.append('height', image.height);
     data.append('status', status);
 
     const fileName = image.uri.slice(image.uri.lastIndexOf('/') + 1);
-
     data.append('file', {
       uri: image.uri,
       type: 'image/jpeg',
@@ -60,7 +61,7 @@ export default function ImagePickerExample() {
     });
   
     try {
-      let res = await axios.post(
+      const res = await axios.post(
         '/api/create-post',
         data,
         {
@@ -69,9 +70,8 @@ export default function ImagePickerExample() {
           },
         }
       );
-      console.log(res);
-      let responseJson = await res.json();
-      console.log(responseJson);
+      store.addNewPost(res.data);
+      props.navigation.navigate("HomeScreen");
     } catch (error) {
       console.log(error);
     } finally {
