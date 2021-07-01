@@ -1,10 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Image, View, Platform } from 'react-native';
+import {
+  Button,
+  Image,
+  View,
+  Platform,
+  TextInput,
+  StyleSheet,
+  ActivityIndicator,
+} from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+
 import * as ImagePicker from 'expo-image-picker';
 import { axios } from '../../config/axios';
 
 export default function ImagePickerExample() {
   const [image, setImage] = useState(null);
+  const [status, setStatus] = useState('');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -25,39 +37,83 @@ export default function ImagePickerExample() {
       quality: 1,
     });
 
-    const data = new FormData();
-    data.append('name', 'Image Upload');
-    data.append('file_attachment', result.uri);
-    data.append('width', result.width);
-    data.append('height', result.height);
-    data.append('type', result.type);
-  
-    let res = await axios.post(
-      '/api/create-post',
-      {
-        method: 'post',
-        body: data,
-        headers: {
-          'Content-Type': 'multipart/form-data; ',
-        },
-      }
-    );
-    let responseJson = await res.json();
-    console.log(responseJson);
-
     if (!result.cancelled) {
-      setImage(result.uri);
+      setImage(result);
     }
   };
 
+  async function postFn() {
+    setLoading(true);
+    const data = new FormData();
+    console.log(image);
+    data.append('width', image.width);
+    data.append('height', image.height);
+    data.append('status', status);
+
+    const fileName = image.uri.slice(image.uri.lastIndexOf('/') + 1);
+
+    data.append('file', {
+      uri: image.uri,
+      type: 'image/jpeg',
+      name: fileName,
+      path: fileName.slice(image.uri.lastIndexOf('.') + 1)
+    });
+  
+    try {
+      let res = await axios.post(
+        '/api/create-post',
+        data,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          },
+        }
+      );
+      console.log(res);
+      let responseJson = await res.json();
+      console.log(responseJson);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
-    <View>
+    <View style={style.posts}>
       <Button title="Pick an image from camera roll" onPress={pickImage} />
       {image && (
-        <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />
+        <KeyboardAwareScrollView>
+          <Image source={{ uri: image.uri }} style={{ width: 200, height: 200 }} />
+          <TextInput
+            style={style.description}
+            placeholder="Write a caption"
+            onChangeText={(newStatus) => setStatus(newStatus)}
+            value={status}
+          />
+          { loading ? <ActivityIndicator /> : (
+            <Button
+              title="Post"
+              color="#3b86ff"
+              onPress={postFn}
+            />
+          ) }
+        </KeyboardAwareScrollView>
       )}
     </View>
   );
 }
 
+const style = StyleSheet.create({
+  posts: {
+    height: 450,
+    flex: 1
+  },
+  description: {
+    marginTop: 5,
+    borderTopWidth: 1,
+    borderTopColor: '#ccc',
+    marginRight: 10,
+    minHeight: 50
+  }
+});

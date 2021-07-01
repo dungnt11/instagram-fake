@@ -28,18 +28,19 @@ class LoginScreen extends React.Component {
       selectedLanguage: "English",
       selectLanguageId: "1",
       loading: false,
-      username: '',
+      email: '',
       password: '',
       error: '',
     };
   }
 
   instaLogin = async () => {
-    const { username, password } = this.state;
+    const { email, password } = this.state;
     try {
       this.setState({ loading: true });
-      await axios.post('/api/login', { username, password });
+      const res = await axios.post('/api/login', { email, password });
       this.props.navigation.navigate("AppStack");
+      return res.data;
     } catch (error) {
       this.setState({ error });
     } finally {
@@ -50,7 +51,7 @@ class LoginScreen extends React.Component {
   render() {
     const {
       loading,
-      username,
+      email,
       password,
       error,
     } = this.state;
@@ -68,9 +69,9 @@ class LoginScreen extends React.Component {
           <View style={styles.inputWrapper}>
             <PlainInput
               placeholder="Phone number, email address or username"
-              value={username}
+              value={email}
               onChangeText={(newUsername) => {
-                this.setState({ username: newUsername, error: '' });
+                this.setState({ email: newUsername, error: '' });
               }}
             />
           </View>
@@ -89,7 +90,10 @@ class LoginScreen extends React.Component {
 
           <View style={styles.inputWrapper}>
             { loading ? <ActivityIndicator /> : (
-              <Button title="Log in" onPress={() => this.instaLogin()} />
+              <Button title="Log in" onPress={async () => {
+                const userData = await this.instaLogin();
+                console.log(userData);
+              }} />
             ) }
           </View>
 

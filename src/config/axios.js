@@ -3,7 +3,7 @@ import axios from 'axios';
 const instance = axios.create();
 
 instance.interceptors.request.use(async (config) => {
-  config.baseURL = 'https://hoan.awe7.com';
+  config.baseURL = 'https://dung.awe7.com';
   return config;
 });
 
