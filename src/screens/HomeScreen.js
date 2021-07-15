@@ -7,13 +7,18 @@ import {
   FlatList,
   Dimensions,
   StyleSheet,
+  TextInput,
+  ActivityIndicator,
 } from "react-native";
 import {
   FontAwesome,
   MaterialCommunityIcons,
   SimpleLineIcons
 } from "@expo/vector-icons";
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { store } from '../store/user';
 import Constants from 'expo-constants';
+import { Video } from 'expo-av';
 
 import { axios } from '../config/axios';
 
@@ -50,15 +55,61 @@ class HomeScreen extends React.Component {
   state = {
     loaded: true,
     data: null,
-    comments: []
+    comments: [],
+    idPostComment: '',
+    currentComment: '',
+    loadingComment: false,
   };
 
   componentDidMount() {
-    const { userID } = this.props.route.params;
-    this.fetchFeed(userID);
+    this.fetchFeed(store._id);
+  }
+
+  async reActionPost(idPost) {
+    const userID = store.userInfo._id;
+    await axios.get(`/api/reaction/${idPost}/${userID}`);
+    const dataClone = JSON.parse(JSON.stringify(this.state.data));
+    const indCurrentPost = dataClone.findIndex((item) => item.id === idPost);
+    if (indCurrentPost > -1) {
+      const likeds = dataClone[indCurrentPost].likes;
+      if (likeds.includes(userID)) {
+        dataClone[indCurrentPost].likes = dataClone[indCurrentPost].likes.filter((item) => item !== userID);
+      } else {
+        dataClone[indCurrentPost].likes.push(userID);
+      }
+      this.setState({ data: dataClone });
+    }
+  }
+
+  async commentPost(idPost, indPost) {
+    try {
+      this.setState({ loadingComment: true });
+      const userID = store.userInfo._id;
+      const { currentComment } = this.state;
+      const commentListUpdate = await axios.post(`/api/comment/${idPost}/${userID}`, {
+        comment: currentComment,
+      });
+      this.setState({ currentComment: '' });
+      const comments = await this.updateComment(commentListUpdate.data);
+      const commnetsCloned = [...this.state.comments];
+      commnetsCloned[indPost] = comments;
+      this.setState({ comments: commnetsCloned });
+    } catch (error) {
+      console.log(error);   
+    } finally {
+      this.setState({ loadingComment: false });
+    }
+  }
+
+  viewProfile(userAuthor) {
+    store.user.currentID = userAuthor;
+    this.props.navigation.navigate("ProfileScreen");
   }
 
   createPost = (postInfo, index) => {
+    const userID = store.userInfo._id;
+    const { currentComment, idPostComment, loadingComment } = this.state;
+
     const imageUri = postInfo.url;
     const status = postInfo.status;
     const username = postInfo.username.toString();
@@ -66,16 +117,28 @@ class HomeScreen extends React.Component {
     const numlikes = postInfo.likes;
 
     return (
-      <View>
+      <KeyboardAwareScrollView>
         <View style={styles.infoContainer}>
           <View style={{ flexDirection: "row", alignItems: "center", flex: 1 }}>
-            <Image style={styles.profileImage} source={{ uri: avatar }} />
-            <Text style={styles.infoText}>{username}</Text>
+            <TouchableOpacity onPress={this.viewProfile.bind(this, postInfo.userID)}>
+              <Image style={styles.profileImage} source={{ uri: avatar }} />
+            </TouchableOpacity>
+          <Text style={styles.infoText}>{username}</Text>
           </View>
           <MaterialCommunityIcons name="dots-vertical" size={26} color="gray" />
         </View>
         <Text style={{ marginLeft: 5, marginBottom: 10 }}>{status}</Text>
-        <Image style={styles.image} source={{ uri: imageUri }} />
+        { postInfo.type === 'image' ? (
+          <Image style={styles.image} source={{ uri: imageUri }} />
+        ) : (
+          <Video
+            source={{ uri: 'https://dung.awe7.com/api/video/6874CAE5-3CAE-41FE-98FC-5914DA1C8EB6.mov' }}
+            style={{ width, height: 250 }}
+            useNativeControls
+            resizeMode="contain"
+            isLooping
+          />
+        ) }
         <View
           style={{
             flexDirection: "row",
@@ -83,10 +146,19 @@ class HomeScreen extends React.Component {
             padding: 12
           }}
         >
-          <TouchableOpacity>
-            <FontAwesome name="heart-o" size={32} color="black" />
+          <TouchableOpacity
+            onPress={this.reActionPost.bind(this, postInfo.id)}
+          >
+            { postInfo.likes.includes(userID) ? (
+              <FontAwesome name="heart" size={32} color="pink" />
+            ) : (
+              <FontAwesome name="heart-o" size={32} color="black" />
+            ) }
           </TouchableOpacity>
-          <TouchableOpacity style={{ paddingHorizontal: 15 }}>
+          <TouchableOpacity
+            style={{ paddingHorizontal: 15 }}
+            onPress={() => this.setState({ idPostComment: postInfo.id })}
+          >
             <SimpleLineIcons name="bubble" size={28} color="black" />
           </TouchableOpacity>
           <TouchableOpacity>
@@ -94,14 +166,62 @@ class HomeScreen extends React.Component {
           </TouchableOpacity>
         </View>
         <Text style={styles.infoText}>
-          {numlikes + (numlikes !== 1 ? " likes" : " like")}
+          {numlikes.length + (numlikes.length !== 1 ? " likes" : " like")}
         </Text>
+        { idPostComment === postInfo.id ? (
+          <View
+            style={{
+              flex: 1,
+              flexDirection: 'row',
+              width,
+              marginBottom: 10,
+              marginTop: 10,
+              marginLeft: 10
+            }}>
+            <Image style={styles.profileImage} source={{ uri: avatar }} />
+            <TextInput
+              style={{
+                height: 40,
+                width: .7 * width,
+                paddingLeft: 10,
+                marginLeft: 5,
+                alignSelf: 'center'
+              }}
+              placeholder="Content comment..."
+              onChangeText={(text) => this.setState({ currentComment: text })}
+              value={currentComment}
+            />
+            <TouchableOpacity
+              style={{
+                width: width * .1,
+                alignSelf: 'center',
+                marginLeft: 10
+              }}
+              onPress={this.commentPost.bind(this, postInfo.id, index)}
+            >
+              { loadingComment ? (
+                <ActivityIndicator />
+              ) : (
+                <Text style={{ color: '#00a6ff' }}>Post</Text>
+              ) }
+            </TouchableOpacity>
+          </View>
+        ) : <View></View> }
         <View style={{ paddingLeft: 10 }}>{this.state.comments[index]}</View>
-      </View>
+      </KeyboardAwareScrollView>
     );
   };
 
-  makeCommentsList = async posts => {
+  updateComment = (commentsList) => {
+    return commentsList.map((commentInfo) => (
+      <View style={styles.comment} key={commentInfo.text}>
+        <Text style={styles.commentText}>{commentInfo.from.displayName}</Text>
+        <Text>{commentInfo.text}</Text>
+      </View>
+    ));
+  }
+
+  makeCommentsList = async (posts) => {
     let postsArray = posts.map(async (post) => {
       const postId = post.id;
       if (post.comments.count === 0) {
@@ -112,12 +232,23 @@ class HomeScreen extends React.Component {
         );
       }
       try {
+        /**
+          {
+            from: {
+              displayName,
+              avatar,
+              id: userDB._id,
+            },
+            text: comment,
+          }
+         */
+
         const comments = await axios.get(`/api/comments/${postId}`);
         const commentsArray = comments.data;
   
-        const commentsList = commentsArray.map(commentInfo => (
-          <View style={styles.comment} key={commentInfo.id}>
-            <Text style={styles.commentText}>{commentInfo.from.username}</Text>
+        const commentsList = commentsArray.map((commentInfo) => (
+          <View style={styles.comment} key={commentInfo.text}>
+            <Text style={styles.commentText}>{commentInfo.from.displayName}</Text>
             <Text>{commentInfo.text}</Text>
           </View>
         ));
@@ -196,6 +327,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     paddingLeft: 10,
     fontWeight: "bold"
+  },
+  comment: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  commentText: {
+    marginRight: 2,
   }
 });
 

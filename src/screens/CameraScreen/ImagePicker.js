@@ -7,13 +7,15 @@ import {
   TextInput,
   StyleSheet,
   ActivityIndicator,
-  Alert,
+  Dimensions,
 } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
-
+import { Video } from 'expo-av';
 import * as ImagePicker from 'expo-image-picker';
 import { axios } from '../../config/axios';
 import { store } from '../../store/user';
+
+const { width } = Dimensions.get("window");
 
 export default function ImagePickerExample(props) {
   const [image, setImage] = useState(null);
@@ -50,8 +52,8 @@ export default function ImagePickerExample(props) {
     data.append('_id', store.userInfo._id);
     data.append('width', image.width);
     data.append('height', image.height);
+    data.append('type', image.type);
     data.append('status', status);
-
     const fileName = image.uri.slice(image.uri.lastIndexOf('/') + 1);
     data.append('file', {
       uri: image.uri,
@@ -78,13 +80,22 @@ export default function ImagePickerExample(props) {
       setLoading(false);
     }
   }
-
   return (
     <View style={style.posts}>
       <Button title="Pick an image from camera roll" onPress={pickImage} />
       {image && (
         <KeyboardAwareScrollView>
-          <Image source={{ uri: image.uri }} style={{ width: 200, height: 200 }} />
+          { image.type === 'image' ? (
+            <Image source={{ uri: image.uri }} style={{ width: 200, height: 200 }} />
+          ) : (
+            <Video
+              source={{ uri: image.uri }}
+              style={{ width, height: 250 }}
+              useNativeControls
+              resizeMode="contain"
+              isLooping
+            />
+          ) }
           <TextInput
             style={style.description}
             placeholder="Write a caption"

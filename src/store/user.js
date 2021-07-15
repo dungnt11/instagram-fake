@@ -5,6 +5,7 @@ class Store {
     displayName: '',
     avatar: '',
     posts: [],
+    currentID: '',
   }
 
   setUser(user) {

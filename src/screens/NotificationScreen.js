@@ -1,94 +1,178 @@
 import React from "react";
-import { Dimensions, StyleSheet } from 'react-native';
-import { Text, View, FlatList } from "react-native";
+import { Text, View, Image, ImageBackground } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
+import { TouchableOpacity } from "react-native-gesture-handler";
+import Constants from 'expo-constants';
 
-const { width, height } = Dimensions.get("window");
-export default class NotificationScreen extends React.Component {
-  static navigationOptions = ({ navigation }) => ({
-    title: "Notification",
-    headerTitleStyle: styles.headerText,
-    headerRight: <View />,
-    headerLeft: <View />
-  });
-
-  constructor(props) {
-    super(props);
-    this.state = {
-      notifications: [
-        {
-          id: "1",
-          msg: "Your facebook friend is on Instagram"
-        },
-        {
-          id: "2",
-          msg: "ABC liked your post"
-        },
-        {
-          id: "3",
-          msg: "Your Friend liked your comment"
-        },
-        {
-          id: "4",
-          msg: "Your Friend liked your comment"
-        },
-        {
-          id: "5",
-          msg: "Your facebook friend is on Instagram"
-        },
-        {
-          id: "6",
-          msg: "Your Friend liked your comment"
-        },
-        {
-          id: "7",
-          msg: "Your facebook friend is on Instagram"
-        }
-      ]
-    };
-  }
-
-  renderItem = (data, index) => (
-    <View style={styles.notifContainer}>
-      <View style={styles.profileImage} />
-      <Text style={{ paddingLeft: 10 }}>{data.msg}</Text>
-    </View>
-  );
-
+export default class YouScreen extends React.Component {
+  static navigationOptions = {
+    tabBarIcon: ({ tintColor }) => (
+      <Icon name="md-search" style={{ color: tintColor }} />
+    )
+  };
   render() {
     return (
-      <View style={styles.container}>
-        <FlatList
-          data={this.state.notifications}
-          renderItem={({ item, index }) => this.renderItem(item, index)}
-          keyExtractor={item => item.id}
-        />
+      <View>
+        {/* ------------------------------------FOLLOW REQUEST------------------------- */}
+        <View style={{ flexDirection: "row", marginTop: Constants.statusBarHeight }}>
+          <View
+            style={{
+              flex: 2,
+              marginLeft: 10
+            }}
+          >
+            <View
+              style={{
+                height: 55,
+                width: 55,
+                borderRadius: 55 / 2,
+                borderColor: "black",
+                borderWidth: 1,
+                justifyContent: "center",
+                alignItems: "center"
+              }}
+            >
+              <MaterialIcons name="person-add" size={45} />
+            </View>
+          </View>
+          <View style={{ flex: 8, marginVertical: 10 }}>
+            <Text
+              style={{ fontWeight: "bold", fontSize: 15, color: "black" }}
+            >
+              Follow requests
+            </Text>
+            <Text style={{ fontSize: 15, color: "#99AAAB" }}>
+              Approve or ignore requests
+            </Text>
+          </View>
+        </View>
+        {/* -----------------------------YESTERDAY------------------------------- */}
+        <View style={{ marginLeft: 10, marginVertical: 15 }}>
+          <Text style={{ fontSize: 15, color: "black" }}>Yesterday</Text>
+        </View>
+        <View style={{ flexDirection: "row" }}>
+          <View style={{ height: 60, width: undefined, flex: 2 }}>
+            <ImageBackground
+              source={require("../../assets/characterImg/8.jpg")}
+              style={{
+                height: 40,
+                width: 40,
+                borderWidth: 1,
+                borderColor: "white",
+                marginLeft: 10
+              }}
+              imageStyle={{ borderRadius: 20 }}
+            >
+              <Image
+                source={require("../../assets/characterImg/7.jpg")}
+                style={{
+                  height: 40,
+                  width: 40,
+                  borderRadius: 20,
+                  borderWidth: 1,
+                  borderColor: "white",
+                  marginTop: 10,
+                  marginLeft: 10
+                }}
+              />
+            </ImageBackground>
+          </View>
+          <View style={{ flex: 8 }}>
+            <Text>
+              <Text
+                style={{ color: "black", fontWeight: "bold", fontSize: 15 }}
+              >
+                leon_george43,debra_perez09
+              </Text>
+              and
+              <Text
+                style={{ color: "black", fontWeight: "bold", fontSize: 15 }}
+              >
+                21 others
+              </Text>
+              started following you
+              <Text style={{ color: "#99AAAB", fontSize: 15 }}>2 days</Text>
+            </Text>
+          </View>
+        </View>
+        {/* --------------------------THIS WEEK--------------------- */}
+        <View style={{ marginLeft: 10, marginVertical: 15 }}>
+          <Text style={{ fontSize: 15, color: "black" }}>This Week</Text>
+        </View>
+        {/* ---------------------THIS WEEK CONTENT------------ */}
+        <View style={{ flexDirection: "row", marginTop: 10 }}>
+          <View style={{ flex: 2, marginLeft: 10 }}>
+            <Image
+              source={require("../../assets/characterImg/8.jpg")}
+              style={{ height: 50, width: 50, borderRadius: 25 }}
+            />
+          </View>
+          <View style={{ flex: 5, marginVertical: 10 }}>
+            <Text style={{ fontSize: 15 }}>
+              You liked 3 posts taged{" "}
+              <Text style={{ color: "#0A3D62" }}>#baseball</Text>
+              <Text style={{ fontSize: 15 }}>this week</Text>
+              <Text style={{ color: "#99AAAB", fontSize: 15 }}> 2 d</Text>
+            </Text>
+            <View
+              style={{
+                flexWrap: "wrap",
+                flexDirection: "row",
+                marginTop: 20
+              }}
+            >
+              <Image
+                source={require("../../assets/characterImg/8.jpg")}
+                style={{
+                  height: 50,
+                  width: 50,
+                  borderWidth: 1,
+                  borderColor: "white"
+                }}
+              />
+              <Image
+                source={require("../../assets/characterImg/8.jpg")}
+                style={{
+                  height: 50,
+                  width: 50,
+                  borderWidth: 1,
+                  borderColor: "white"
+                }}
+              />
+              <Image
+                source={require("../../assets/characterImg/8.jpg")}
+                style={{
+                  height: 50,
+                  width: 50,
+                  borderWidth: 1,
+                  borderColor: "white"
+                }}
+              />
+            </View>
+          </View>
+          <View style={{ flex: 3 }}>
+            <TouchableOpacity
+              style={{
+                backgroundColor: "#2e88db",
+                borderRadius: 5,
+                marginRight: 15
+              }}
+            >
+              <Text
+                style={{
+                  color: "white",
+                  fontSize: 15,
+                  paddingVertical: 7,
+                  paddingHorizontal: 5,
+                  alignSelf: "center"
+                }}
+              >
+                Follow
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </View>
     );
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    justifyContent: "center",
-    padding: 10
-  },
-  headerText: {
-    textAlign: "center",
-    flex: 1,
-    fontFamily: "lobster_regular",
-    fontSize: 22
-  },
-  profileImage: {
-    width: width * 0.1,
-    height: width * 0.1,
-    borderRadius: width * 0.4,
-    borderWidth: 1
-  },
-  notifContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 5
-  }
-});

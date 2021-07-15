@@ -33,11 +33,16 @@ export default class ProfileScreen extends React.Component {
   };
 
   componentDidMount() {
-    this.fetchFeed();
+    const userID = store.user.currentID || store.userInfo._id;
+    this.fetchFeed(userID);
   }
 
-  async fetchFeed() {
-    const posts = await axios.get('/api/users/self');
+  componentWillUnmount() {
+    store.user.currentID = '';
+  }
+
+  async fetchFeed(userID) {
+    const posts = await axios.get(`/api/users/self/${userID}`);
     const img = posts.data.profile_picture;
     await this.setState({
       loaded: false,
@@ -94,8 +99,8 @@ export default class ProfileScreen extends React.Component {
     );
   };
 
-  renderItem = (postInfo, index) => {
-    const imageUri = postInfo.url;
+  renderItem = (postInfo) => {
+    const imageUri = postInfo.image;
 
     return (
       <View style={styles.gridImgContainer}>
@@ -131,7 +136,7 @@ const styles = StyleSheet.create({
   },
   gridImgContainer: {
     padding: 1,
-    backgroundColor: "#CCC"
+    backgroundColor: "#CCC",
   },
   profileImage: {
     width: width * 0.2,

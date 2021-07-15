@@ -91,9 +91,15 @@ class LoginScreen extends React.Component {
           <View style={styles.inputWrapper}>
             { loading ? <ActivityIndicator /> : (
               <Button title="Log in" onPress={async () => {
-                const userData = await this.instaLogin();
-                store.setUser(userData);
-                this.props.navigation.navigate("AppStack", { userID: userData._id });
+                try {
+                  const userData = await this.instaLogin();
+                  if (userData) {
+                    store.setUser(userData);
+                    this.props.navigation.navigate("AppStack");
+                  }
+                } catch (error) {
+                  console.log(error);
+                }
               }} />
             ) }
           </View>
