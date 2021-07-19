@@ -66,7 +66,7 @@ function AppStack(props) {
           ),
         }}
       />
-      <Tab.Screen
+      {/* <Tab.Screen
         name="SearchScreen"
         component={SearchScreen}
         options={{
@@ -79,7 +79,7 @@ function AppStack(props) {
             />
           ),
         }}
-      />
+      /> */}
       <Tab.Screen
         name="CameraScreen"
         component={CameraScreen}
@@ -94,7 +94,7 @@ function AppStack(props) {
           ),
         }}
       />
-      <Tab.Screen
+      {/* <Tab.Screen
         name="NotificationScreen"
         component={NotificationScreen}
         options={{
@@ -107,7 +107,7 @@ function AppStack(props) {
             />
           ),
         }}
-      />
+      /> */}
       <Tab.Screen
         name="ProfileScreen"
         component={ProfileComp}
