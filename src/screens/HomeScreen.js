@@ -132,7 +132,7 @@ class HomeScreen extends React.Component {
           <Image style={styles.image} source={{ uri: imageUri }} />
         ) : (
           <Video
-            source={{ uri: 'https://insta.ehandytech.com/api/video/6874CAE5-3CAE-41FE-98FC-5914DA1C8EB6.mov' }}
+            source={{ uri: 'https://dung.awe7.com/api/video/6874CAE5-3CAE-41FE-98FC-5914DA1C8EB6.mov' }}
             style={{ width, height: 250 }}
             useNativeControls
             resizeMode="contain"
@@ -274,6 +274,7 @@ class HomeScreen extends React.Component {
   }
 
   render() {
+    console.log(this.state.data);
     return (
       <View style={styles.container}>
         <Loader loading={this.state.loaded} text="Loading..." />
